@@ -1,0 +1,20 @@
+.app {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    width: 700px;
+    border: 3px solid black;
+}
+
+.header {
+    color: rgb(17, 0, 255);
+    margin: 20px 0px 0px 0px;
+}
+
+.header__add {
+    margin: 20px 0px 10px 0px;
+}
+
+.main__button {
+    margin: 0px 0px 0px 30px;
+}
