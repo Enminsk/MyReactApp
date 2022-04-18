@@ -1,7 +1,10 @@
 import React from 'react';
+import { connect } from 'react-redux';
+
 import { CheckboxGroup } from './common';
 import css from './styles.module.css';
 import { FILTER_STATUSES, filterOptions } from './constants';
+import { TasksSelectors, TasksActionCreators } from '../store';
 
 const filterTask = (filter, task) => {
     if (filter === FILTER_STATUSES.ALL) {
@@ -15,26 +18,10 @@ const filterTask = (filter, task) => {
     return !task.isDone;
 }
 
-const generateUniqId = (tasks) => {
-    const ids = tasks.map(({ id }) => id);
-
-    return Math.max(...ids) + 1;
-}
-
-export class App extends React.Component {
+class AppOriginal extends React.Component {
     state = {
-        tasks: [
-            { id: 1, todo: 'Выучить JS', isDone: true },
-            { id: 2, todo: 'Выучить React', isDone: false },
-        ],
         todoInput: '',
         filter: FILTER_STATUSES.ALL,
-    }
-
-    deleteTaskHandler = (id) => {
-        this.setState((prevState) => ({
-            tasks: prevState.tasks.filter(({ id: taskID }) => taskID !== id)
-        }));
     }
 
     inputChangeHandler = (e) => {
@@ -42,25 +29,11 @@ export class App extends React.Component {
     }
 
     addTaskHandler = () => {
-        this.setState((prevState) => ({
-            tasks: prevState
-                .tasks
-                .concat(
-                    [{ id: generateUniqId(prevState.tasks), todo: prevState.todoInput, isDone: false }]
-                )
-        }))
-    }
+        this.props.addTask({ todo: this.state.todoInput, isDone: false });
+        }
 
-    toggleCheckbox = (id) => {
-        this.setState((prevState) => ({
-            tasks: prevState.tasks.map((task) => {
-                if (task.id !== id) {
-                    return task
-                }
-
-                return { ...task, isDone: !task.isDone };
-            })
-        }))
+    toggleCheckbox = () => {
+        this.props.toggleTask({ tasks: this.state.isDone})
     }
 
     changeFilterHandler = (e) => {
@@ -68,7 +41,8 @@ export class App extends React.Component {
     }
 
     render () {
-        const { tasks, todoInput, filter } = this.state;
+        const { tasks } = this.props;
+        const { todoInput, filter } = this.state;
         
         return (
             <div className={css.app}>
@@ -84,11 +58,11 @@ export class App extends React.Component {
                     {tasks.filter((task) => filterTask(filter, task)).map(({ todo, id, isDone }) => (
                         <li className={css.item} key={id}>
                             <input className={css.checkbox} type="checkbox" checked={isDone} onChange={() => {
-                                this.toggleCheckbox(id)
+                                this.props.toggleTask(id)
                             }}/>
                             {todo}
                             {isDone && <button className={css.button} onClick={() => {
-                                this.deleteTaskHandler(id)
+                                this.props.deleteTask(id)
                                 }}>Удалить задачу</button>}
                         </li>
                     ))}
@@ -97,3 +71,16 @@ export class App extends React.Component {
         );
     }
 }
+
+
+const mapStateToProps = (state) => ({
+    tasks: TasksSelectors.getTasks(state)
+});
+
+const mapDispatchToProps = (dispatch) => ({
+    deleteTask: (id) => dispatch(TasksActionCreators.deleteTask(id)),
+    addTask: (task) => dispatch(TasksActionCreators.addTask(task)),
+    toggleTask: (task) => dispatch(TasksActionCreators.toggleTask(task)),
+})
+
+export const App = connect(mapStateToProps, mapDispatchToProps)(AppOriginal)
