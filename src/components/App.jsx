@@ -33,7 +33,7 @@ class AppOriginal extends React.Component {
         }
 
     toggleCheckbox = () => {
-        this.props.toggleTask({ tasks: this.state.isDone})
+        this.props.toggleTask({ id: this.state.isDone})
     }
 
     changeFilterHandler = (e) => {
@@ -80,7 +80,7 @@ const mapStateToProps = (state) => ({
 const mapDispatchToProps = (dispatch) => ({
     deleteTask: (id) => dispatch(TasksActionCreators.deleteTask(id)),
     addTask: (task) => dispatch(TasksActionCreators.addTask(task)),
-    toggleTask: (task) => dispatch(TasksActionCreators.toggleTask(task)),
+    toggleTask: (id) => dispatch(TasksActionCreators.toggleTask(id)),
 })
 
 export const App = connect(mapStateToProps, mapDispatchToProps)(AppOriginal)
